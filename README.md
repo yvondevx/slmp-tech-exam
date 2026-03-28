@@ -15,7 +15,7 @@ Implement a Laravel-based backend that imports JSONPlaceholder data into a norma
 ## Local setup
 
 1. Clone repo
-    - `git clone https://github.com/yvondevx/slmp-tech-exam .`
+    - `git clone https://github.com/yvondevx/slmp-tech-exam`
 2. Copy env
     - `cp .env.example .env`
 3. (Optional) Set DB credentials for local MySQL if not using Docker
