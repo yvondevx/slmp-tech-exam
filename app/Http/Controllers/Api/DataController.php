@@ -14,7 +14,7 @@ class DataController extends Controller
 {
     public function users()
     {
-        return response()->json(User::with(['address', 'company', 'posts', 'albums', 'todos'])->get());
+        return response()->json(User::with(['address', 'company'])->get());
     }
 
     public function posts()
