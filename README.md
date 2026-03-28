@@ -8,16 +8,16 @@ Implement a Laravel-based backend that imports JSONPlaceholder data into a norma
 
 - `fetch:jsonplaceholder` artisan command fetches users, posts, comments, albums, photos, todos
 - Eloquent models + relations + migrations
-- Auth via API token middleware (`api.token`)
+- Auth via API key middleware (`api.key`)
 - REST endpoints under `/api/*`
 - Docker support with `docker-compose`
 
 ## Local setup
 
 1. Clone repo
-   - `git clone <remote-url> .`
+    - `git clone https://github.com/yvondevx/slmp-tech-exam .`
 2. Copy env
-   - `cp .env.example .env`
+    - `cp .env.example .env`
 3. (Optional) Set DB credentials for local MySQL if not using Docker
 
 ## Running with Docker
@@ -36,12 +36,10 @@ Implement a Laravel-based backend that imports JSONPlaceholder data into a norma
 
 ## Auth
 
-1. Login endpoint:
-   - POST `http://localhost:8000/api/login`
-   - Body: `{ "email": "admin@example.com", "password": "secret" }`
-   - Response: `{ "token": "..." }`
+1. Configure API key:
+    - Set `API_KEY` in `.env` (for Docker, also provided in `docker-compose.yml`)
 2. Protected endpoints require header:
-   - `Authorization: Bearer <token>`
+    - `X-API-KEY: <your_api_key>`
 
 ## API Endpoints
 
@@ -55,8 +53,9 @@ Implement a Laravel-based backend that imports JSONPlaceholder data into a norma
 
 ## Postman testing
 
-1. Call `POST /api/login` to get token
-2. Use Bearer token in headers and call any GET endpoint.
+1. Import `postman/SLMP-Tech-Exam.postman_collection.json`
+2. Set `api_key` collection variable to your `API_KEY` value
+3. Call any GET endpoint with `X-API-KEY` header.
 
 ## Notes
 

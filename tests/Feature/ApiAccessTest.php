@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,27 +9,20 @@ class ApiAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_login_returns_token(): void
+    public function test_api_protected_routes_require_api_key(): void
     {
-        $user = User::factory()->create([
-            'email' => 'admin@example.com',
-            'password' => bcrypt('secret'),
-            'api_token' => hash('sha256', 'secret-token'),
-        ]);
+        config(['app.api_key' => 'test-api-key']);
 
-        $response = $this->postJson('/api/login', ['email' => 'admin@example.com', 'password' => 'secret']);
+        $response = $this->getJson('/api/users');
 
-        $response->assertStatus(200);
-        $response->assertJson(['token' => $user->api_token]);
+        $response->assertStatus(401);
     }
 
-    public function test_api_protected_routes_require_token(): void
+    public function test_api_protected_routes_allow_valid_api_key(): void
     {
-        $user = User::factory()->create([
-            'api_token' => hash('sha256', 'secret-token'),
-        ]);
+        config(['app.api_key' => 'test-api-key']);
 
-        $response = $this->withHeaders(['Authorization' => 'Bearer secret-token'])->getJson('/api/users');
+        $response = $this->withHeaders(['X-API-KEY' => 'test-api-key'])->getJson('/api/users');
         $response->assertStatus(200);
     }
 }

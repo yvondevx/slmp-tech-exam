@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -10,22 +9,16 @@ class ApiTokenAuth
 {
     public function handle(Request $request, Closure $next)
     {
-        $authHeader = $request->header('Authorization');
+        $providedApiKey = $request->header('X-API-KEY');
+        $expectedApiKey = config('app.api_key');
 
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+        if (!is_string($providedApiKey) || $providedApiKey === '' || !is_string($expectedApiKey) || $expectedApiKey === '') {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $token = substr($authHeader, 7);
-        $hashed = hash('sha256', $token);
-
-        $user = User::where('api_token', $hashed)->first();
-
-        if (!$user) {
+        if (!hash_equals($expectedApiKey, $providedApiKey)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-
-        auth()->setUser($user);
 
         return $next($request);
     }
