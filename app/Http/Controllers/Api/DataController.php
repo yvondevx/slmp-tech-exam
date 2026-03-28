@@ -14,12 +14,12 @@ class DataController extends Controller
 {
     public function users()
     {
-        return response()->json(User::with(['posts', 'albums', 'todos'])->get());
+        return response()->json(User::with(['address', 'company', 'posts', 'albums', 'todos'])->get());
     }
 
     public function posts()
     {
-        return response()->json(Post::with(['user', 'comments'])->get());
+        return response()->json(Post::with(['user.address', 'user.company', 'comments'])->get());
     }
 
     public function comments()
@@ -29,7 +29,7 @@ class DataController extends Controller
 
     public function albums()
     {
-        return response()->json(Album::with(['user', 'photos'])->get());
+        return response()->json(Album::with(['user.address', 'user.company', 'photos'])->get());
     }
 
     public function photos()
@@ -39,18 +39,18 @@ class DataController extends Controller
 
     public function todos()
     {
-        return response()->json(Todo::with('user')->get());
+        return response()->json(Todo::with(['user.address', 'user.company'])->get());
     }
 
     public function all()
     {
         return response()->json([
-            'users' => User::with(['posts', 'albums', 'todos'])->get(),
-            'posts' => Post::with(['user', 'comments'])->get(),
+            'users' => User::with(['address', 'company', 'posts', 'albums', 'todos'])->get(),
+            'posts' => Post::with(['user.address', 'user.company', 'comments'])->get(),
             'comments' => Comment::with('post')->get(),
-            'albums' => Album::with(['user', 'photos'])->get(),
+            'albums' => Album::with(['user.address', 'user.company', 'photos'])->get(),
             'photos' => Photo::with('album')->get(),
-            'todos' => Todo::with('user')->get(),
+            'todos' => Todo::with(['user.address', 'user.company'])->get(),
         ]);
     }
 }

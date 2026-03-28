@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Album;
+use App\Models\Address;
 use App\Models\Comment;
+use App\Models\Company;
 use App\Models\Photo;
 use App\Models\Post;
 use App\Models\Todo;
@@ -41,18 +43,50 @@ class FetchJsonPlaceholder extends Command
         $users = Http::get('https://jsonplaceholder.typicode.com/users')->throw()->json();
 
         foreach ($users as $item) {
-            User::updateOrCreate(
-                ['external_id' => $item['id']],
+            $user = User::query()
+                ->where('external_id', $item['id'])
+                ->orWhere('email', $item['email'])
+                ->first();
+
+            if (!$user) {
+                $user = new User();
+            }
+
+            $user->external_id = $item['id'];
+            $user->fill([
+                'name' => $item['name'],
+                'username' => $item['username'] ?? null,
+                'email' => $item['email'],
+                'phone' => $item['phone'] ?? null,
+                'website' => $item['website'] ?? null,
+                'password' => bcrypt('password'),
+                'api_token' => hash('sha256', $item['username'] . '@' . Str::random(32)),
+            ]);
+            $user->save();
+
+            Address::updateOrCreate(
+                ['user_id' => $user->id],
                 [
-                    'name' => $item['name'],
-                    'email' => $item['email'],
-                    'password' => bcrypt('password'),
-                    'api_token' => hash('sha256', $item['username'] . '@' . Str::random(32)),
+                    'street' => $item['address']['street'] ?? null,
+                    'suite' => $item['address']['suite'] ?? null,
+                    'city' => $item['address']['city'] ?? null,
+                    'zipcode' => $item['address']['zipcode'] ?? null,
+                    'lat' => $item['address']['geo']['lat'] ?? null,
+                    'lng' => $item['address']['geo']['lng'] ?? null,
+                ]
+            );
+
+            Company::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'name' => $item['company']['name'] ?? null,
+                    'catch_phrase' => $item['company']['catchPhrase'] ?? null,
+                    'bs' => $item['company']['bs'] ?? null,
                 ]
             );
         }
 
-        $this->info('Users imported: '.count($users));
+        $this->info('Users imported: ' . count($users));
     }
 
     protected function importPosts(): void
@@ -75,7 +109,7 @@ class FetchJsonPlaceholder extends Command
             );
         }
 
-        $this->info('Posts imported: '.count($posts));
+        $this->info('Posts imported: ' . count($posts));
     }
 
     protected function importComments(): void
@@ -99,7 +133,7 @@ class FetchJsonPlaceholder extends Command
             );
         }
 
-        $this->info('Comments imported: '.count($comments));
+        $this->info('Comments imported: ' . count($comments));
     }
 
     protected function importAlbums(): void
@@ -121,7 +155,7 @@ class FetchJsonPlaceholder extends Command
             );
         }
 
-        $this->info('Albums imported: '.count($albums));
+        $this->info('Albums imported: ' . count($albums));
     }
 
     protected function importPhotos(): void
@@ -145,7 +179,7 @@ class FetchJsonPlaceholder extends Command
             );
         }
 
-        $this->info('Photos imported: '.count($photos));
+        $this->info('Photos imported: ' . count($photos));
     }
 
     protected function importTodos(): void
@@ -168,6 +202,6 @@ class FetchJsonPlaceholder extends Command
             );
         }
 
-        $this->info('Todos imported: '.count($todos));
+        $this->info('Todos imported: ' . count($todos));
     }
 }
